@@ -233,12 +233,13 @@
 
     getSettings: function () {
       var s = getJSON(KEYS.settings, null);
-      if (!s || typeof s !== 'object') s = { accent: 'us', daily_new: 20, theme: 'light' };
+      if (!s || typeof s !== 'object') s = { accent: 'us', daily_new: 20, theme: 'light', order: 'shuffle' };
       if (s.accent !== 'us' && s.accent !== 'uk') s.accent = 'us';
       var dn = parseInt(s.daily_new, 10);
       if (isNaN(dn) || dn < 5 || dn > 200) dn = 20;
       s.daily_new = dn;
       if (s.theme !== 'light' && s.theme !== 'dark') s.theme = 'light';
+      if (s.order !== 'shuffle' && s.order !== 'seq') s.order = 'shuffle';
       return s;
     },
     setSettings: function (s) { return setJSON(KEYS.settings, s); },

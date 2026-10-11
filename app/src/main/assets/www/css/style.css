@@ -42,8 +42,10 @@
 [data-theme="dark"] .hero-btn{background:#E8EAED; color:#15171A}
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;height:100%}
+html{background:var(--bg)}
+html,body{margin:0;padding:0}
 body{
+  min-height:100%;
   background:var(--bg); color:var(--fg);
   font-family:var(--font-ui);
   font-size:15px; line-height:1.55;

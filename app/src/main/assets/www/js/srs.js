@@ -86,7 +86,7 @@
     return dueWordsFor(bookId).length;
   }
 
-  /** 按当前书取 count 个尚未学习的新词（乱序随机抽取，避免按词表/字母顺序单调）。 */
+  /** 按当前书取 count 个尚未学习的新词（按设置「顺序 / 乱序」抽取）。 */
   function newWords(count) {
     var p = Store.getProgress();
     var wl = Words.currentList();
@@ -95,11 +95,16 @@
       var w = wl[i];
       if (!p[w]) fresh.push(w);
     }
-    // Fisher-Yates 乱序
-    for (var j = fresh.length - 1; j > 0; j--) {
-      var k = Math.floor(Math.random() * (j + 1));
-      var t = fresh[j]; fresh[j] = fresh[k]; fresh[k] = t;
+    var s = Store.getSettings();
+    var order = (s && s.order) ? s.order : 'shuffle';
+    if (order !== 'seq') {
+      // 乱序：Fisher-Yates 洗牌
+      for (var j = fresh.length - 1; j > 0; j--) {
+        var k = Math.floor(Math.random() * (j + 1));
+        var t = fresh[j]; fresh[j] = fresh[k]; fresh[k] = t;
+      }
     }
+    // 顺序：保持词书顺序，不洗牌
     return fresh.slice(0, count);
   }
 

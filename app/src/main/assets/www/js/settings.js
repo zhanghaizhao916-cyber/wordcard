@@ -18,6 +18,11 @@
       nChips[j].classList.toggle('active', parseInt(nChips[j].dataset.n, 10) === s.daily_new);
     }
 
+    var oChips = document.querySelectorAll('#orderChips .chip');
+    for (var o = 0; o < oChips.length; o++) {
+      oChips[o].classList.toggle('active', oChips[o].dataset.order === s.order);
+    }
+
     var input = Util.$('#dailyNewInput');
     if (input) input.value = s.daily_new;
 
@@ -126,6 +131,16 @@
       render();
       if (window.App && App.refreshHome) App.refreshHome();
       Util.toast('每日新词量 ' + s.daily_new + ' 词');
+    });
+
+    Util.$('#orderChips').addEventListener('click', function (e) {
+      var c = e.target.closest('.chip');
+      if (!c) return;
+      var s = Store.getSettings();
+      s.order = c.dataset.order;
+      Store.setSettings(s);
+      render();
+      Util.toast(s.order === 'shuffle' ? '已切换为乱序学习' : '已切换为顺序学习');
     });
 
     var customInput = Util.$('#dailyNewInput');
