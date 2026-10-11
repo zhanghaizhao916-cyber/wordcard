@@ -17,6 +17,11 @@
     Util.$('#homeDate').textContent = (now.getMonth() + 1) + '月' + now.getDate() + '日';
     Util.$('#homeWeek').textContent = weekNames[now.getDay()];
 
+    // 问候语随系统时间变化
+    var hour = now.getHours();
+    var greet = (hour < 5) ? '夜深了' : (hour < 11) ? '早上好' : (hour < 13) ? '中午好' : (hour < 18) ? '下午好' : '晚上好';
+    Util.$('#heroGreet').textContent = greet + '，今天该背单词了';
+
     var s = Stats.summary();
     var settings = Store.getSettings();
     var due = SRS.dueWords().length;
