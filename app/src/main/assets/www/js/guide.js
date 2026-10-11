@@ -31,8 +31,9 @@
 
   function showPage(i) {
     cur = Math.max(0, Math.min(pages.length - 1, i));
-    var track = Util.$('#guideTrack');
-    if (track) track.style.transform = 'translateX(' + (-cur * 100) + '%)';
+    for (var j = 0; j < pages.length; j++) {
+      pages[j].classList.toggle('active', j === cur);
+    }
     var dots = document.querySelectorAll('#guideDots .guide-dot');
     for (var j = 0; j < dots.length; j++) {
       dots[j].classList.toggle('active', j === cur);
@@ -101,19 +102,6 @@
     bound = true;
     Util.$('#guideSkip').addEventListener('click', close);
     Util.$('#guideNext').addEventListener('click', next);
-    var track = Util.$('#guideTrack');
-    if (!track) return;
-    track.addEventListener('touchstart', function (e) {
-      if (e.touches && e.touches.length) startX = e.touches[0].clientX;
-    }, { passive: true });
-    track.addEventListener('touchend', function (e) {
-      if (startX === null) return;
-      var dx = (e.changedTouches && e.changedTouches.length)
-        ? e.changedTouches[0].clientX - startX : 0;
-      if (dx < -40) showPage(cur + 1);
-      else if (dx > 40) showPage(cur - 1);
-      startX = null;
-    }, { passive: true });
   }
 
   window.Guide = {
