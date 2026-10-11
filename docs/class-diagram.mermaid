@@ -1,0 +1,115 @@
+classDiagram
+    class MainActivity {
+        -WebView web
+        -TtsEngine tts
+        +onCreate(Bundle)
+        +shouldInterceptRequest(WebResourceRequest) WebResourceResponse
+        +onBackPressed()
+        +onDestroy()
+    }
+    class TtsEngine {
+        -TextToSpeech tts
+        -boolean ready
+        -String pendingText
+        +init(Context)
+        +speak(String text, String accent)
+        +shutdown()
+    }
+    class FileExporter {
+        +save(Context, String, String) String
+    }
+    class Bridge {
+        +speak(String text, String accent)
+        +appVersion() String
+        +toast(String msg)
+        +saveFile(String name, String content) String
+    }
+    MainActivity *-- Bridge : 注入为 AndroidBridge
+    MainActivity --> TtsEngine : 委托发音
+    MainActivity --> FileExporter : 导出
+
+    class Store {
+        +getProgress() Object
+        +setProgress(Object)
+        +toggleNotebook(String)
+        +getNotebook() Object
+        +addQuiz(Object)
+        +getQuizHistory() Array
+        +getStats() Object
+        +updateStats(Object)
+        +getSettings() Object
+        +setSettings(Object)
+        +exportAll() String
+        +importAll(String)
+    }
+    class Words {
+        +Map index
+        +Array order
+        +buildIndex()
+        +get(String) Object
+        +cnBrief(String) String
+        +phonetic(String, String) String
+    }
+    class SRS {
+        +int[] INTERVALS
+        +applyFeedback(String, String)
+        +buildDailyQueue() Array
+        +nextNewWord() String
+    }
+    class TTS {
+        +speak(String word, String accent)
+        +onlinePlay(String word, String accent)
+        +fallbackTTS(String word, String accent)
+    }
+    class Stats {
+        +recordLearn()
+        +recordReview()
+        +checkin()
+        +getHomeStats() Object
+    }
+    class Cards {
+        +render(String word)
+        +flip()
+        +feedback(String fb)
+        +next()
+    }
+    class Quiz {
+        +start(String type)
+        +renderQuestion()
+        +grade(String answer)
+        +finish()
+    }
+    class Notebook {
+        +render()
+        +remove(String word)
+    }
+    class Essay {
+        +render()
+        +toggleMemorized(String id)
+    }
+    class Settings {
+        +render()
+        +bind()
+    }
+    class App {
+        +init()
+        +navigate(String page)
+        +onAndroidBack() bool
+    }
+
+    App --> Store
+    App --> Words
+    App --> SRS
+    App --> TTS
+    App --> Stats
+    Cards --> SRS
+    Cards --> Store
+    Cards --> TTS
+    Cards --> Stats
+    Quiz --> Words
+    Quiz --> Store
+    Notebook --> Store
+    Notebook --> Words
+    Essay --> Store
+    Settings --> Store
+    TTS --> Bridge : AndroidBridge.speak()

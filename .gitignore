@@ -1,0 +1,43 @@
+# ============================================================
+# 四级背单词 CET4Words · Git 忽略规则
+# ============================================================
+
+# ---------- 构建产物（可由源码重新生成，不进版本库）----------
+build/
+app/build/
+.gradle/
+*.ap_
+*.dex
+*.class
+
+# ---------- 本地配置（含本机 SDK 路径，别人拿到没用）----------
+local.properties
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---------- 其它 ----------
+captures/
+.externalNativeBuild/
+.cxx/
+*.log
+*.hprof
+tools/.cache/
+tools/tmp/
+docs/backup/
+docs/qa-evidence*/
+
+# ---------- APK 发布产物（二进制不进仓库，用 GitHub Release 发布）----------
+*.apk
+*.aab
+
+# ---------- 词库数据（来源许可证不明/受限，不进仓库，用 tools/ 脚本生成）----------
+app/src/main/assets/www/data/cet4.js
+app/src/main/assets/www/data/cet6.js
+app/src/main/assets/www/data/cet4_core.js

@@ -1,0 +1,100 @@
+classDiagram
+  class Store {
+    +KEYS
+    +getMeta() Object
+    +setMeta(m)
+    +getCurrentBook() string
+    +setCurrentBook(id)
+    +getBookProgress(id) Object
+    +setBookProgress(id, p)
+    +getProgress() Object
+    +setProgress(p)
+    +getBookStats(id) Object
+    +setBookStats(id, s)
+    +getStats() Object
+    +setStats(s)
+    +getNotebook() Object
+    +setNotebook(n)
+    +migrate() void
+    +exportAll() string
+    +importAll(text) int
+    +clearAll() void
+  }
+  class Words {
+    +BOOKS[]
+    +BOOK_IDS[]
+    +buildIndex() void
+    +get(word) entry
+    +all() entry[]
+    +count() int
+    +books() meta[]
+    +bookMeta(id) meta
+    +bookList(id) string[]
+    +currentBook() string
+    +currentList() string[]
+    +currentTotal() int
+    +phonetic(entry, accent) string
+    +briefCn(entry) string
+    +sentences(entry) array
+    +speechUrl(word, accent) string
+  }
+  class SRS {
+    +applyFeedback(word, fb) record
+    +dueWords() string[]
+    +dueWordsFor(bookId) string[]
+    +dueCount(bookId) int
+    +newWords(count) string[]
+    +buildQueue(dailyNew) object
+  }
+  class Stats {
+    +blankBookStats() object
+    +getGlobal() object
+    +getBookStats() object
+    +rollover() bool
+    +checkin(global) void
+    +recordLearn(n) object
+    +recordReview(n) object
+    +summary() object
+  }
+  class Books {
+    +render() void
+    +switch(bookId) void
+    +onBack() bool
+  }
+  class App {
+    +boot() void
+    +renderHome() void
+    +navigate(page) void
+    +showBooks() void
+    +showCards(mode) void
+    +exitCards() void
+    +refreshHome() void
+  }
+  class Cards {
+    +start(m, ws, idx) void
+    +feedback(fb) void
+  }
+  class Quiz {
+    +sampleWords(n) string[]
+    +makeOptions(word) string[]
+    +buildQuestions(t) void
+  }
+  class Notebook {
+    +render() void
+  }
+
+  App --> Store : migrate
+  App --> Words : buildIndex/currentList
+  App --> Books : render/switch
+  App --> SRS : dueWords
+  App --> Stats : summary
+  Store <.. SRS : getProgress/setProgress
+  Store <.. Stats : getStats/getBookStats
+  Store <.. Books : getMeta/setCurrentBook
+  Store <.. Words : getCurrentBook
+  Words <.. SRS : currentList
+  Words <.. Quiz : currentList/get
+  Words <.. Notebook : get
+  Cards --> SRS : applyFeedback
+  Cards --> Stats : recordLearn/Review
+  Quiz --> Store : getProgress

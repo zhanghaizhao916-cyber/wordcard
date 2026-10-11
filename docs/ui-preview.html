@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>四级背单词 · UI 方案预览</title>
+<style>
+/* ============================================================
+   预览页自身（中性外壳）
+   背景浅灰 #F2F3F5、手机壳中性描边，让四套配色各自凸显。
+   铁律：零 emoji、零阴影堆砌、无霓虹渐变、中文用系统黑体、
+        动效 100–150ms linear 或硬切。
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:#F2F3F5; color:#222;
+  font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.55;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:0;background:none;padding:0}
+svg{display:block}
+
+.pv-header{max-width:1180px;margin:0 auto;padding:30px 24px 4px}
+.pv-header h1{font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.2px}
+.pv-header p{margin:0;color:#5F6672;font-size:13.5px}
+
+.pv-tabs{
+  max-width:1180px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;
+  padding:18px 24px 8px;border-bottom:1px solid #E2E4E8;
+}
+.pv-tab{
+  padding:9px 16px;border-radius:999px;border:1px solid #D6D9DE;
+  background:#FFFFFF;color:#4A4F57;font-size:14px;font-weight:600;
+  transition:background .12s linear,color .12s linear,border-color .12s linear;
+}
+.pv-tab:hover{border-color:#B9BEC6}
+.pv-tab.active{background:#14161A;color:#FFFFFF;border-color:#14161A}
+
+#stage{max-width:1180px;margin:0 auto;padding:20px 24px 4px}
+
+.scheme-meta{margin:4px 2px 16px}
+.scheme-meta h2{font-size:18px;font-weight:700;margin:0 0 4px;letter-spacing:-.2px}
+.scheme-meta p{margin:0;color:#5F6672;font-size:13px}
+
+.phones{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.phone-col{width:300px}
+.phone-label{font-size:12.5px;color:#5F6672;font-weight:600;margin:0 0 8px 4px}
+
+.phone{
+  width:300px;height:650px;display:flex;flex-direction:column;
+  border:1px solid #C9CDD3;border-radius:30px;overflow:hidden;
+  box-shadow:0 0 0 4px #FFFFFF;background:var(--bg);
+}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 16px 16px;overflow:hidden}
+
+/* 假状态栏 */
+.statusbar{
+  height:20px;flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;font-weight:700;color:var(--fg);padding:0 2px 4px;
+}
+.battery{
+  width:21px;height:11px;border:1px solid currentColor;border-radius:2.5px;
+  position:relative;color:var(--fg-2);
+}
+.battery::before{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:62%;background:currentColor;border-radius:1px}
+.battery::after{content:"";position:absolute;right:-3.5px;top:2.5px;width:2px;height:5px;background:currentColor;border-radius:1px}
+
+/* ---------- 通用组件 ---------- */
+.panel{border:1px solid var(--line);border-radius:var(--r);background:var(--card);overflow:hidden}
+.line-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}
+.line-row + .line-row{border-top:1px solid var(--line)}
+.line-label{font-size:13.5px;font-weight:550}
+.line-value{font-size:13.5px;font-weight:650}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:7px;width:100%;
+  padding:12px;border-radius:var(--r);font-size:14.5px;font-weight:650;
+}
+.btn svg{width:17px;height:17px;stroke:currentColor}
+.btn.primary{background:var(--accent);color:var(--on-accent);border:1px solid transparent}
+.btn.ghost{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+
+.stat-grid{
+  display:flex;border:1px solid var(--line);border-radius:var(--r);
+  margin-top:14px;overflow:hidden;background:var(--stat-bg);
+}
+.stat{flex:1;text-align:center;padding:14px 6px 12px}
+.stat + .stat{border-left:1px solid var(--line)}
+.stat-num{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.stat-label{font-size:11.5px;color:var(--fg-2);margin-top:3px}
+
+/* ---------- 首页 ---------- */
+.home-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 14px}
+.home-date{font-size:24px;font-weight:700;letter-spacing:-.3px}
+.home-week{font-size:12.5px;color:var(--fg-2);margin-top:2px}
+.streak{
+  font-size:11.5px;font-weight:600;white-space:nowrap;border-radius:999px;
+  padding:4px 10px;color:var(--badge-color);border:1px solid var(--badge-border);background:var(--badge-bg);
+}
+.home-actions{display:flex;flex-direction:column;gap:9px;margin:12px 0 2px}
+
+/* ---------- 底部导航 ---------- */
+.tabbar{
+  flex:0 0 auto;display:flex;border-top:1px solid var(--line);
+  background:var(--bg);padding:5px 4px 7px;
+}
+.tab{
+  flex:1;max-width:80px;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:4px 2px;border-radius:var(--r-sm);color:var(--fg-2);
+}
+.tab svg{width:19px;height:19px;stroke:currentColor}
+.tab span{font-size:9.5px;font-weight:600}
+.tab.active{color:var(--accent-text)}
+/* 极光蓝：当前项用靛蓝色块填充（白字） */
+.scheme-aurora .tab.active{background:var(--accent);color:#FFFFFF}
+.scheme-aurora .btn.primary{padding:13px}
+
+/* ---------- 卡片页 ---------- */
+.cards-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px}
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  color:var(--fg-2);flex:0 0 auto;
+}
+.icon-btn svg{width:20px;height:20px;stroke:currentColor}
+.icon-btn.star{color:var(--accent-text)}
+.icon-btn.star svg{fill:currentColor}
+.cards-progress{font-size:13px;color:var(--fg-2);font-weight:600}
+
+.flashcard{
+  flex:1;min-height:0;border:1px solid var(--line);border-radius:var(--r);
+  margin:10px 0 0;padding:20px 18px;background:var(--card);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+.flashcard.front{align-items:center;justify-content:center;text-align:center}
+.flashcard.back{align-items:flex-start;justify-content:flex-start;text-align:left}
+
+.word-row{display:flex;align-items:center;gap:10px}
+.word{font-size:34px;font-weight:700;letter-spacing:-.5px;margin:0;word-break:break-word}
+.speak-btn{
+  width:38px;height:38px;flex:0 0 38px;border-radius:50%;border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--accent-text);
+}
+.speak-btn svg{width:17px;height:17px;stroke:currentColor}
+.phonetics{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:14px}
+.ph{font-size:13.5px;color:var(--fg-2)}
+
+.trans-list{margin-bottom:12px;width:100%}
+.trans-line{display:flex;gap:8px;margin-bottom:7px;font-size:16px;line-height:1.5}
+.trans-line .pos{flex:0 0 auto;color:var(--accent-text);font-weight:700;font-size:14px}
+.trans-line .cn{color:var(--fg)}
+.def{font-size:13px;color:var(--fg-2);margin-bottom:12px;line-height:1.6}
+.sentence{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);width:100%}
+.sent-en{font-size:14px;color:var(--fg);line-height:1.55}
+.sent-cn{font-size:12.5px;color:var(--fg-2);margin-top:4px}
+
+.cards-hint{text-align:center;font-size:11.5px;color:var(--fg-2);padding:12px 0 8px}
+.cards-actions{display:flex;gap:9px}
+.fb{
+  flex:1;padding:12px 0;border-radius:var(--r);border:1px solid var(--line);
+  background:var(--card);color:var(--fg-2);font-size:14px;font-weight:650;
+}
+.fb.know{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+
+/* ---------- 底部说明 ---------- */
+.pv-footer{max-width:1180px;margin:0 auto;padding:22px 24px 40px;color:#5F6672;font-size:12.5px;line-height:1.7}
+.pv-footer #pvContrast{color:#333;font-weight:600;margin-bottom:8px}
+.pv-note{max-width:900px}
+
+@media (max-width:680px){
+  .phone-col{width:100%}
+  .phone{width:100%;height:600px}
+}
+</style>
+</head>
+<body>
+
+<header class="pv-header">
+  <h1>四级背单词 · UI 方案预览</h1>
+  <p>点上方方案切换，用「手机壳」还原首页与背单词卡片页的真实信息架构。所有 mock 数据：10月10日 星期六 · 连续打卡 3 天 · 今日新词 12/20 · 待复习 6。</p>
+</header>
+
+<nav class="pv-tabs" id="pvTabs">
+  <button class="pv-tab active" data-scheme="paper">纸墨 Paper Ink</button>
+  <button class="pv-tab" data-scheme="aurora">极光蓝 Aurora Blue</button>
+  <button class="pv-tab" data-scheme="dark">墨夜 Dark Ink</button>
+  <button class="pv-tab" data-scheme="warm">暖阳 Warm Sunrise</button>
+</nav>
+
+<main id="stage"></main>
+
+<footer class="pv-footer">
+  <div id="pvContrast"></div>
+  <div class="pv-note">
+    对比度按 WCAG 2.x 计算，正文/小字通过线为 4.5:1。方案四「暖阳」次级色由 #8A7B6E 微调为 #7A6B5F 以满足 4.5:1；主色 #E07B39 仅用于大块填色（配深色字），小字强调改用 #B45309。中文统一系统黑体，全页禁 emoji。
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* 线描图标（feather 风格，颜色跟随 currentColor，禁 emoji） */
+  var ICONS = {
+    back: '<polyline points="15 18 9 12 15 6"/>',
+    star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    speaker: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+    home: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    notebook: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+    quiz: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    essay: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+    settings: '<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+    review: '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+    learn: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'
+  };
+
+  function svgRaw(inner, filled) {
+    return '<svg viewBox="0 0 24 24" ' + (filled ? 'fill="currentColor" ' : 'fill="none" ')
+      + 'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + inner + '</svg>';
+  }
+  function icon(name) { return svgRaw(ICONS[name], false); }
+  function iconFilled(name) { return svgRaw(ICONS[name], true); }
+
+  function statusbar() {
+    return '<div class="statusbar"><span>9:41</span><span class="battery"></span></div>';
+  }
+
+  function homeScreen() {
+    return statusbar()
+      + '<div class="home-head">'
+      +   '<div><div class="home-date">10月10日</div><div class="home-week">星期六</div></div>'
+      +   '<div class="streak">连续打卡 3 天</div>'
+      + '</div>'
+      + '<div class="panel">'
+      +   '<div class="line-row"><span class="line-label">今日新词</span><span class="line-value">12 / 20</span></div>'
+      +   '<div class="line-row"><span class="line-label">待复习</span><span class="line-value">6</span></div>'
+      + '</div>'
+      + '<div class="home-actions">'
+      +   '<button class="btn primary">' + icon('review') + '<span>开始复习</span></button>'
+      +   '<button class="btn ghost">' + icon('learn') + '<span>开始学习</span></button>'
+      + '</div>'
+      + '<div class="stat-grid">'
+      +   '<div class="stat"><div class="stat-num">128</div><div class="stat-label">累计学习</div></div>'
+      +   '<div class="stat"><div class="stat-num">32</div><div class="stat-label">累计打卡</div></div>'
+      +   '<div class="stat"><div class="stat-num">3</div><div class="stat-label">连续天数</div></div>'
+      + '</div>';
+  }
+
+  function tabbar() {
+    var tabs = [['home', '今日学习'], ['notebook', '生词本'], ['quiz', '测试'], ['essay', '范文'], ['settings', '设置']];
+    var html = '<div class="tabbar">';
+    for (var i = 0; i < tabs.length; i++) {
+      html += '<button class="tab' + (i === 0 ? ' active' : '') + '">' + icon(tabs[i][0]) + '<span>' + tabs[i][1] + '</span></button>';
+    }
+    return html + '</div>';
+  }
+
+  function cardHead() {
+    return statusbar()
+      + '<div class="cards-head">'
+      +   '<button class="icon-btn">' + icon('back') + '</button>'
+      +   '<div class="cards-progress">12 / 20</div>'
+      +   '<button class="icon-btn star">' + iconFilled('star') + '</button>'
+      + '</div>';
+  }
+
+  function cardActions() {
+    return '<div class="cards-actions">'
+      + '<button class="fb">不认识</button>'
+      + '<button class="fb">模糊</button>'
+      + '<button class="fb know">认识</button>'
+      + '</div>';
+  }
+
+  function cardFront() {
+    return cardHead()
+      + '<div class="flashcard front">'
+      +   '<div class="word-row"><h1 class="word">abandon</h1><button class="speak-btn">' + icon('speaker') + '</button></div>'
+      +   '<div class="phonetics"><span class="ph">美 /əˈbændən/</span><span class="ph">英 /əˈbændən/</span></div>'
+      + '</div>'
+      + '<div class="cards-hint">点击卡片翻面 · 点喇叭发音</div>'
+      + cardActions();
+  }
+
+  function cardBack() {
+    return cardHead()
+      + '<div class="flashcard back">'
+      +   '<div class="trans-list">'
+      +     '<div class="trans-line"><span class="pos">vt.</span><span class="cn">放弃；抛弃；中止</span></div>'
+      +     '<div class="trans-line"><span class="pos">n.</span><span class="cn">放任；狂热</span></div>'
+      +   '</div>'
+      +   '<div class="def">放弃；抛弃；中止：to leave a place, thing, or person permanently.</div>'
+      +   '<div class="sentence"><div class="sent-en">They had to abandon the plan.</div><div class="sent-cn">他们不得不放弃这个计划。</div></div>'
+      + '</div>'
+      + '<div class="cards-hint">已翻面 · 点喇叭发音</div>'
+      + cardActions();
+  }
+
+  var SCHEMES = {
+    paper: {
+      name: '纸墨 Paper Ink',
+      desc: '安静书卷气 · 暖白纸感 + 钢笔蓝 #2F4B6E + 1px 细线白卡',
+      vars: {
+        '--bg': '#FBF9F4', '--card': '#FFFFFF', '--fg': '#1F1D1A', '--fg-2': '#6B6560',
+        '--line': '#E8E3DA', '--accent': '#2F4B6E', '--on-accent': '#FFFFFF', '--accent-text': '#2F4B6E',
+        '--soft': '#F2F1ED', '--accent-soft': '#EEF1F5', '--r': '6px', '--r-sm': '4px',
+        '--stat-bg': '#FFFFFF',
+        '--badge-bg': 'transparent', '--badge-border': '#E8E3DA', '--badge-color': '#2F4B6E'
+      },
+      footer: '主色 #2F4B6E｜白字压它 8.93:1｜它压暖白底 #FBF9F4 8.48:1｜次级 #6B6560 压底 5.46:1'
+    },
+    aurora: {
+      name: '极光蓝 Aurora Blue',
+      desc: '清爽现代 · 纯白底 + 靛蓝 #3B5BDB + 浅灰蓝 #F6F7FB 分组层次',
+      vars: {
+        '--bg': '#FFFFFF', '--card': '#FFFFFF', '--fg': '#14161A', '--fg-2': '#5F6672',
+        '--line': '#ECEDF0', '--accent': '#3B5BDB', '--on-accent': '#FFFFFF', '--accent-text': '#3B5BDB',
+        '--soft': '#F6F7FB', '--accent-soft': '#EBEEFC', '--r': '6px', '--r-sm': '4px',
+        '--stat-bg': '#F6F7FB',
+        '--badge-bg': '#EBEEFC', '--badge-border': '#EBEEFC', '--badge-color': '#3B5BDB'
+      },
+      footer: '主色 #3B5BDB｜白字压它 5.67:1｜它压白底 5.67:1｜次级 #5F6672 压底 5.78:1'
+    },
+    dark: {
+      name: '墨夜 Dark Ink',
+      desc: '夜间沉浸 · 深底 #0F1115 + 暖琥珀 #E8A33D + 深灰卡面 #1A1D23',
+      vars: {
+        '--bg': '#0F1115', '--card': '#1A1D23', '--fg': '#ECEDEF', '--fg-2': '#9AA0A6',
+        '--line': '#26292F', '--accent': '#E8A33D', '--on-accent': '#0F1115', '--accent-text': '#E8A33D',
+        '--soft': '#1A1D23', '--accent-soft': '#2A2318', '--r': '6px', '--r-sm': '4px',
+        '--stat-bg': '#1A1D23',
+        '--badge-bg': 'transparent', '--badge-border': '#26292F', '--badge-color': '#E8A33D'
+      },
+      footer: '主色 #E8A33D｜深字 #0F1115 压它 8.76:1｜它压深底 #0F1115 8.76:1｜次级 #9AA0A6 压底 7.16:1'
+    },
+    warm: {
+      name: '暖阳 Warm Sunrise',
+      desc: '温暖亲切 · 奶油米色 #FDF7EF + 暖橙 #E07B39 + 柔和圆角 10px',
+      vars: {
+        '--bg': '#FDF7EF', '--card': '#FFFFFF', '--fg': '#2B2320', '--fg-2': '#7A6B5F',
+        '--line': '#F0E6D8', '--accent': '#E07B39', '--on-accent': '#2B2320', '--accent-text': '#B45309',
+        '--soft': '#FBF1E6', '--accent-soft': '#FBE9DA', '--r': '10px', '--r-sm': '8px',
+        '--stat-bg': '#FFFFFF',
+        '--badge-bg': '#E07B39', '--badge-border': '#E07B39', '--badge-color': '#2B2320'
+      },
+      footer: '主色 #E07B39｜深字 #2B2320 压它 5.18:1｜强调文字 #B45309 压底 4.72:1｜次级 #7A6B5F 压底 4.82:1（#E07B39 压底仅 2.79:1，故只作大块填色不作小字）'
+    }
+  };
+
+  function render(id) {
+    var s = SCHEMES[id];
+    var v = '';
+    for (var k in s.vars) {
+      if (s.vars.hasOwnProperty(k)) v += k + ':' + s.vars[k] + ';';
+    }
+    var html = '<div class="scheme-wrap scheme-' + id + '" style="' + v + '">'
+      + '<div class="scheme-meta"><h2>' + s.name + '</h2><p>' + s.desc + '</p></div>'
+      + '<div class="phones">'
+      +   '<div class="phone-col"><div class="phone-label">首页 · 今日学习</div>'
+      +     '<div class="phone"><div class="screen">' + homeScreen() + '</div>' + tabbar() + '</div></div>'
+      +   '<div class="phone-col"><div class="phone-label">背单词卡片 · 正面</div>'
+      +     '<div class="phone"><div class="screen">' + cardFront() + '</div></div></div>'
+      +   '<div class="phone-col"><div class="phone-label">背单词卡片 · 翻面</div>'
+      +     '<div class="phone"><div class="screen">' + cardBack() + '</div></div></div>'
+      + '</div>'
+      + '</div>';
+
+    document.getElementById('stage').innerHTML = html;
+    document.getElementById('pvContrast').textContent = '对比度 · ' + s.footer;
+  }
+
+  function bindTabs() {
+    var tabs = document.querySelectorAll('.pv-tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function () {
+        var id = this.dataset.scheme;
+        for (var j = 0; j < tabs.length; j++) {
+          tabs[j].classList.toggle('active', tabs[j] === this);
+        }
+        render(id);
+      });
+    }
+  }
+
+  bindTabs();
+  render('paper');
+})();
+</script>
+</body>
+</html>

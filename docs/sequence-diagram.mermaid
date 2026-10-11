@@ -1,0 +1,32 @@
+sequenceDiagram
+    participant U as 用户
+    participant App
+    participant SRS
+    participant Cards
+    participant TTS
+    participant Store
+    participant Stats
+
+    U->>App: 打开 App
+    App->>App: init() 路由到首页
+    App->>SRS: buildDailyQueue()
+    SRS->>Store: getProgress() + getStats()
+    U->>App: 点「开始学习/复习」
+    App->>SRS: 取队首词
+    SRS-->>App: word
+    App->>Cards: render(word)
+    Cards->>Store: getProgress()[word]
+    Cards-->>U: 正面(单词+音标)
+    U->>Cards: 点卡片翻面
+    Cards-->>U: 反面(释义+例句)
+    U->>Cards: 点喇叭
+    Cards->>TTS: speak(word, accent)
+    U->>Cards: 点「认识/模糊/忘记」
+    Cards->>SRS: applyFeedback(word, fb)
+    SRS->>SRS: 计算 stage/next_review_at/lapses
+    SRS->>Store: setProgress(word, record)
+    Cards->>Stats: recordLearn/recordReview + checkin
+    Stats->>Store: updateStats()
+    Cards->>SRS: 下一词
+    SRS-->>Cards: word
+    Cards->>Cards: render(word)

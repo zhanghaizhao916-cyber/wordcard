@@ -1,0 +1,23 @@
+# ============================================================
+# 换行符与二进制类型约定
+# 目的：跨机器/跨平台不会因为换行符差异产生无意义的 diff
+# ============================================================
+
+# 默认：进仓库统一存成 LF
+* text=auto eol=lf
+
+# Windows 脚本保持 CRLF，否则部分环境执行会出问题
+*.ps1   text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# 明确标记为二进制，避免 Git 试图做文本 diff / 换行转换
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.apk   binary
+*.aab   binary
+*.jar   binary
+*.keystore binary

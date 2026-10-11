@@ -1,0 +1,46 @@
+sequenceDiagram
+  participant App
+  participant Store
+  participant Words
+  participant SRS
+  participant Stats
+  participant Books
+  participant U as 用户
+
+  %% —— 启动 + 老数据迁移 ——
+  App->>Store: migrate()
+  alt meta.schema_version >= 2
+    Store-->>App: 跳过（幂等）
+  else 首次升级
+    Store->>Store: 读 cet4.progress / 旧 cet4.stats
+    Store->>Store: 初始化三本空词书 cet4.books.*
+    Store->>Store: 旧 progress+计数 写入 cet4.books.cet4_full
+    Store->>Store: 写全局 cet4.stats（仅打卡三字段）
+    Store->>Store: 写 cet4.meta{sv:2,current_book,migrated_from_v1}
+    Store->>Store: remove('cet4.progress')
+  end
+  App->>Words: buildIndex()  %% 合并 CET4+CET6 索引 + 词书注册表
+  App->>Stats: rollover()    %% 三本书各重置今日计数
+  App->>App: bind() + renderHome()
+
+  %% —— 词书切换 ——
+  U->>Books: 点选「六级完整」
+  Books->>Store: setCurrentBook('cet6_full')
+  Store->>Store: 写 cet4.meta.current_book
+  Books->>App: navigate('home')
+  App->>Store: getCurrentBook() = 'cet6_full'
+  App->>SRS: dueWords()      %% 按 cet6_full.progress
+  App->>Stats: summary()     %% cet6_full.stats + 全局打卡
+  App->>App: renderHome()
+
+  %% —— 学习反馈（按书计数 + 全局打卡）——
+  App->>Store: getProgress() %% 当前书进度
+  App->>SRS: applyFeedback(w, fb)
+  SRS->>Store: setProgress(p)
+  alt 首次学习
+    App->>Stats: recordLearn(1)
+  else 复习
+    App->>Stats: recordReview(1)
+  end
+  Stats->>Store: setBookStats(currentBook, ...)
+  Stats->>Store: setStats(全局打卡)

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>四级背单词 · 版式方向预览 v2</title>
+<style>
+/* ============================================================
+   版式方向预览 v2（布局重构，非换色）
+   预览页自身：中性灰 #F2F3F5、手机壳中性描边。
+   铁律：禁 emoji、中文系统黑体不用衬线、动效 100–150ms linear 或硬切、
+        强调色双向对比度 >=4.5:1。
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:#F2F3F5; color:#222;
+  font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.55;
+}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:0;background:none;padding:0}
+svg{display:block}
+
+.pv-header{max-width:1180px;margin:0 auto;padding:30px 24px 4px}
+.pv-header h1{font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.2px}
+.pv-header p{margin:0;color:#5F6672;font-size:13.5px;max-width:900px}
+
+.pv-tabs{max-width:1180px;margin:0 auto;display:flex;gap:8px;flex-wrap:wrap;padding:18px 24px 8px;border-bottom:1px solid #E2E4E8}
+.pv-tab{
+  padding:9px 16px;border-radius:999px;border:1px solid #D6D9DE;
+  background:#FFFFFF;color:#4A4F57;font-size:14px;font-weight:600;
+  transition:background .12s linear,color .12s linear,border-color .12s linear;
+}
+.pv-tab:hover{border-color:#B9BEC6}
+.pv-tab.active{background:#14161A;color:#FFFFFF;border-color:#14161A}
+
+#stage{max-width:1180px;margin:0 auto;padding:20px 24px 4px}
+.layout-meta{margin:4px 2px 16px}
+.layout-meta h2{font-size:18px;font-weight:700;margin:0 0 4px;letter-spacing:-.2px}
+.layout-meta p{margin:0;color:#5F6672;font-size:13px}
+
+.phones{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.phone-col{width:300px}
+.phone-label{font-size:12.5px;color:#5F6672;font-weight:600;margin:0 0 8px 4px}
+
+.phone{
+  width:300px;height:650px;display:flex;flex-direction:column;
+  border:1px solid #C9CDD3;border-radius:30px;overflow:hidden;
+  box-shadow:0 0 0 4px #FFFFFF;background:var(--bg);
+}
+.screen{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 16px 16px;overflow:hidden}
+
+/* 假状态栏 */
+.statusbar{height:20px;flex:0 0 20px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:var(--fg);padding:0 2px 4px}
+.battery{width:21px;height:11px;border:1px solid currentColor;border-radius:2.5px;position:relative;color:var(--fg-2)}
+.battery::before{content:"";position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:62%;background:currentColor;border-radius:1px}
+.battery::after{content:"";position:absolute;right:-3.5px;top:2.5px;width:2px;height:5px;background:currentColor;border-radius:1px}
+
+/* ---------- 底部导航（三版式共用结构） ---------- */
+.tabbar{flex:0 0 auto;display:flex;border-top:1px solid var(--line);background:var(--bg);padding:5px 4px 7px}
+.tab{flex:1;max-width:80px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;border-radius:var(--r-sm);color:var(--fg-2)}
+.tab svg{width:19px;height:19px;stroke:currentColor}
+.tab span{font-size:9.5px;font-weight:600}
+.tab.active{color:var(--accent)}
+
+/* ---------- 卡片页共用顶栏 ---------- */
+.cards-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:8px}
+.icon-btn{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--fg-2);flex:0 0 auto}
+.icon-btn svg{width:20px;height:20px;stroke:currentColor}
+.icon-btn.star{color:var(--accent)}
+.icon-btn.star svg{fill:currentColor}
+.cards-progress{font-size:13px;color:var(--fg-2);font-weight:600}
+.cards-hint{text-align:center;font-size:11.5px;color:var(--fg-2);padding:12px 0 8px}
+
+/* ============================================================
+   版式 A · Hero 焦点式（清爽靛蓝）
+   ============================================================ */
+.layout-a .a-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 12px}
+.layout-a .a-date{font-size:15px;font-weight:700}
+.layout-a .a-week{font-size:11.5px;color:var(--fg-2);margin-top:1px}
+.layout-a .a-streak{font-size:11.5px;font-weight:600;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+.layout-a .a-hero{
+  background:var(--accent);color:#FFFFFF;border-radius:16px;padding:16px 16px 14px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.layout-a .a-greet{font-size:12.5px;opacity:.82;font-weight:600}
+.layout-a .a-hero-date{font-size:11px;opacity:.66;margin-top:1px}
+.layout-a .a-num-row{display:flex;align-items:baseline;gap:6px;margin:10px 0 0}
+.layout-a .a-num{font-size:52px;font-weight:700;letter-spacing:-1.5px;line-height:1}
+.layout-a .a-total{font-size:22px;font-weight:700;opacity:.85}
+.layout-a .a-cap{font-size:12px;opacity:.85;margin-top:6px}
+.layout-a .a-tag{align-self:flex-start;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:3px 9px;margin-top:8px}
+.layout-a .a-hero-btn{
+  margin-top:14px;width:100%;padding:12px;border-radius:10px;background:#FFFFFF;color:var(--accent);
+  font-size:15px;font-weight:700;
+}
+.layout-a .a-ghost-btn{
+  width:100%;margin-top:10px;padding:12px;border-radius:10px;background:var(--card);
+  border:1px solid var(--line);color:var(--fg);font-size:14.5px;font-weight:650;
+}
+.layout-a .a-stats{display:flex;gap:10px;margin-top:14px}
+.layout-a .a-stat{
+  flex:1;border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:13px 6px 11px;text-align:center;
+}
+.layout-a .a-stat-num{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.layout-a .a-stat-label{font-size:11px;color:var(--fg-2);margin-top:3px}
+
+.layout-a .a-card{
+  flex:1;min-height:0;border:1px solid var(--line);border-radius:16px;background:var(--card);
+  margin:10px 0 0;padding:22px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;
+}
+.layout-a .a-card.back{align-items:flex-start;justify-content:flex-start;text-align:left}
+.layout-a .a-word{font-size:34px;font-weight:700;letter-spacing:-.5px;margin:0}
+.layout-a .a-speak{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+.layout-a .a-speak svg{width:17px;height:17px;stroke:currentColor}
+.layout-a .a-word-row{display:flex;align-items:center;gap:10px}
+.layout-a .a-ph{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:14px;font-size:13.5px;color:var(--fg-2)}
+.layout-a .a-trans{display:flex;gap:8px;margin-bottom:8px;font-size:16px}
+.layout-a .a-pos{color:var(--accent);font-weight:700;font-size:14px;flex:0 0 auto}
+.layout-a .a-def{font-size:13px;color:var(--fg-2);margin-bottom:12px;line-height:1.6}
+.layout-a .a-sent{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);width:100%}
+.layout-a .a-sent-en{font-size:14px;color:var(--fg);line-height:1.55}
+.layout-a .a-sent-cn{font-size:12.5px;color:var(--fg-2);margin-top:4px}
+.layout-a .a-fb{display:flex;gap:9px}
+.layout-a .a-fb-btn{flex:1;padding:12px 0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg-2);font-size:14px;font-weight:650}
+.layout-a .a-fb-btn.know{background:var(--accent);color:#FFFFFF;border-color:var(--accent)}
+
+/* ============================================================
+   版式 B · 仪表盘式（数据青绿）
+   ============================================================ */
+.layout-b .b-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 10px}
+.layout-b .b-title{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.layout-b .b-date{font-size:11.5px;color:var(--fg-2);margin-top:2px}
+.layout-b .b-streak{font-size:11.5px;font-weight:600;color:var(--accent);border:1px solid var(--line);border-radius:999px;padding:4px 10px;white-space:nowrap}
+
+.layout-b .b-ring-wrap{position:relative;width:150px;height:150px;margin:4px auto 0}
+.layout-b .b-ring{width:150px;height:150px}
+.layout-b .b-ring-track{stroke:var(--track)}
+.layout-b .b-ring-val{stroke:var(--accent);stroke-linecap:round}
+.layout-b .b-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.layout-b .b-ring-num{font-size:34px;font-weight:700;letter-spacing:-.8px}
+.layout-b .b-ring-cap{font-size:11px;color:var(--fg-2)}
+.layout-b .b-sub{text-align:center;font-size:12.5px;color:var(--fg-2);margin-top:8px}
+.layout-b .b-sub b{color:var(--fg);font-weight:700}
+
+.layout-b .b-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.layout-b .b-cell{
+  width:calc(50% - 5px);border:1px solid var(--line);border-radius:12px;background:var(--card);
+  padding:12px;text-align:left;display:flex;flex-direction:column;gap:4px;
+}
+.layout-b .b-cell-ico{color:var(--accent)}
+.layout-b .b-cell-ico svg{width:20px;height:20px;stroke:currentColor}
+.layout-b .b-cell-name{font-size:14px;font-weight:700;color:var(--fg)}
+.layout-b .b-cell-desc{font-size:11px;color:var(--fg-2)}
+
+.layout-b .b-stat-bar{display:flex;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:14px;overflow:hidden}
+.layout-b .b-stat{flex:1;text-align:center;padding:13px 6px 11px}
+.layout-b .b-stat + .b-stat{border-left:1px solid var(--line)}
+.layout-b .b-stat-num{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.layout-b .b-stat-label{font-size:11px;color:var(--fg-2);margin-top:3px}
+
+.layout-b .b-progress-bar{height:4px;border-radius:2px;background:var(--track);margin:6px 0 0;overflow:hidden}
+.layout-b .b-progress-fill{height:100%;width:60%;background:var(--accent);border-radius:2px}
+.layout-b .b-card{
+  flex:1;min-height:0;border:1px solid var(--line);border-radius:16px;background:var(--card);
+  margin:10px 0 0;padding:20px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;
+}
+.layout-b .b-card.back{align-items:flex-start;justify-content:flex-start;text-align:left}
+.layout-b .b-word{font-size:32px;font-weight:700;letter-spacing:-.5px;margin:0}
+.layout-b .b-speak{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;color:var(--accent)}
+.layout-b .b-speak svg{width:16px;height:16px;stroke:currentColor}
+.layout-b .b-word-row{display:flex;align-items:center;gap:10px}
+.layout-b .b-ph{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:12px;font-size:13px;color:var(--fg-2)}
+.layout-b .b-trans{display:flex;gap:8px;margin-bottom:8px;font-size:16px}
+.layout-b .b-pos{color:var(--accent);font-weight:700;font-size:14px;flex:0 0 auto}
+.layout-b .b-def{font-size:13px;color:var(--fg-2);margin-bottom:12px;line-height:1.6}
+.layout-b .b-sent{margin-top:auto;padding-top:12px;border-top:1px solid var(--line);width:100%}
+.layout-b .b-sent-en{font-size:14px;color:var(--fg);line-height:1.55}
+.layout-b .b-sent-cn{font-size:12.5px;color:var(--fg-2);margin-top:4px}
+/* 分段反馈控件 */
+.layout-b .b-fb{display:flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.layout-b .b-fb-btn{flex:1;padding:12px 0;background:var(--card);color:var(--fg-2);font-size:14px;font-weight:650}
+.layout-b .b-fb-btn + .b-fb-btn{border-left:1px solid var(--line)}
+.layout-b .b-fb-btn.know{background:var(--accent);color:#FFFFFF}
+
+/* ============================================================
+   版式 C · 大字沉浸式（黑白 + 单一强调）
+   ============================================================ */
+.layout-c .c-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px 18px}
+.layout-c .c-date{font-size:12.5px;color:var(--fg-2);font-weight:600}
+.layout-c .c-streak{font-size:12px;font-weight:600;color:var(--accent)}
+.layout-c .c-title{font-size:30px;font-weight:700;letter-spacing:-.6px;line-height:1.25;margin:0 2px}
+.layout-c .c-title .c-accent{color:var(--accent)}
+.layout-c .c-progress{margin:22px 2px 0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.layout-c .c-num{font-size:64px;font-weight:700;letter-spacing:-2px;line-height:.95}
+.layout-c .c-den{font-size:26px;font-weight:700;color:var(--fg-2)}
+.layout-c .c-cap{font-size:13px;color:var(--fg-2);font-weight:600;margin-left:2px}
+.layout-c .c-rule{height:1px;background:var(--line);margin:18px 2px 0}
+.layout-c .c-line-row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px 0}
+.layout-c .c-line-label{font-size:13.5px;color:var(--fg-2)}
+.layout-c .c-line-val{font-size:13.5px;font-weight:650}
+.layout-c .c-link{color:var(--accent);font-weight:650;display:inline-flex;align-items:center;gap:3px}
+.layout-c .c-link svg{width:15px;height:15px;stroke:currentColor}
+.layout-c .c-btn{
+  width:100%;margin-top:16px;padding:14px;border-radius:2px;background:var(--fg);color:#FFFFFF;
+  font-size:15px;font-weight:700;
+}
+.layout-c .c-stats{display:flex;margin-top:22px}
+.layout-c .c-stat{flex:1;text-align:center}
+.layout-c .c-stat + .c-stat{border-left:1px solid var(--line)}
+.layout-c .c-stat-num{font-size:24px;font-weight:700;letter-spacing:-.4px}
+.layout-c .c-stat-label{font-size:11px;color:var(--fg-2);margin-top:4px}
+
+.layout-c .c-card{
+  flex:1;min-height:0;margin:10px 0 0;padding:10px 2px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;overflow:hidden;
+}
+.layout-c .c-card.back{align-items:flex-start;justify-content:flex-start;text-align:left}
+.layout-c .c-word{font-size:48px;font-weight:700;letter-spacing:-1px;margin:0;word-break:break-word}
+.layout-c .c-speak{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--accent);margin-top:14px}
+.layout-c .c-speak svg{width:20px;height:20px;stroke:currentColor}
+.layout-c .c-ph{font-size:14px;color:var(--fg-2);margin-top:16px}
+.layout-c .c-trans{display:flex;gap:10px;margin-bottom:14px;font-size:22px;line-height:1.4;align-items:baseline}
+.layout-c .c-pos{color:var(--accent);font-weight:700;font-size:17px;flex:0 0 auto}
+.layout-c .c-cn{font-weight:600}
+.layout-c .c-def{font-size:14px;color:var(--fg-2);margin-bottom:16px;line-height:1.7}
+.layout-c .c-sent{margin-top:auto;padding-top:16px;width:100%}
+.layout-c .c-sent-en{font-size:17px;color:var(--fg);line-height:1.55}
+.layout-c .c-sent-cn{font-size:13px;color:var(--fg-2);margin-top:6px}
+/* 底部通栏三格反馈 */
+.layout-c .c-fb{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.layout-c .c-fb-btn{flex:1;padding:14px 0;background:var(--card);color:var(--fg-2);font-size:15px;font-weight:650}
+.layout-c .c-fb-btn + .c-fb-btn{border-left:1px solid var(--line)}
+.layout-c .c-fb-btn.know{background:var(--accent);color:#FFFFFF}
+
+/* ---------- 底部说明 ---------- */
+.pv-footer{max-width:1180px;margin:0 auto;padding:22px 24px 40px;color:#5F6672;font-size:12.5px;line-height:1.7}
+.pv-footer #pvContrast{color:#333;font-weight:600;margin-bottom:8px}
+.pv-note{max-width:900px}
+
+@media (max-width:680px){
+  .phone-col{width:100%}
+  .phone{width:100%;height:600px}
+}
+</style>
+</head>
+<body>
+
+<header class="pv-header">
+  <h1>四级背单词 · 版式方向预览 v2</h1>
+  <p>本次重构的是<b>布局结构</b>（首页信息层次 + 卡片页排版），不是换配色。三个版式布局明显不同，配色各成体系但克制。mock 数据：10月10日 星期六 · 连续打卡 3 天 · 今日新词 12/20 · 待复习 6 · 累计学习 128 · 累计打卡 32。</p>
+</header>
+
+<nav class="pv-tabs" id="pvTabs">
+  <button class="pv-tab active" data-layout="a">A · Hero 焦点式</button>
+  <button class="pv-tab" data-layout="b">B · 仪表盘式</button>
+  <button class="pv-tab" data-layout="c">C · 大字沉浸式</button>
+</nav>
+
+<main id="stage"></main>
+
+<footer class="pv-footer">
+  <div id="pvContrast"></div>
+  <div class="pv-note">
+    对比度按 WCAG 2.x 计算，正文/小字通过线为 4.5:1。三个版式的强调色均双向达标（白字压强调色、强调色压背景）。中文统一系统黑体，全页禁 emoji，动效 100–150ms linear。
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* 线描图标（feather 风格，颜色跟随 currentColor，禁 emoji） */
+  var ICONS = {
+    back: '<polyline points="15 18 9 12 15 6"/>',
+    chevron: '<polyline points="9 18 15 12 9 6"/>',
+    star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    speaker: '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>',
+    home: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    notebook: '<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+    quiz: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+    essay: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+    settings: '<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/>',
+    review: '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+    learn: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'
+  };
+
+  function svgRaw(inner, filled) {
+    return '<svg viewBox="0 0 24 24" ' + (filled ? 'fill="currentColor" ' : 'fill="none" ')
+      + 'stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+      + inner + '</svg>';
+  }
+  function icon(name) { return svgRaw(ICONS[name], false); }
+  function iconFilled(name) { return svgRaw(ICONS[name], true); }
+
+  function statusbar() {
+    return '<div class="statusbar"><span>9:41</span><span class="battery"></span></div>';
+  }
+
+  function tabbar() {
+    var tabs = [['home', '今日学习'], ['notebook', '生词本'], ['quiz', '测试'], ['essay', '范文'], ['settings', '设置']];
+    var html = '<div class="tabbar">';
+    for (var i = 0; i < tabs.length; i++) {
+      html += '<button class="tab' + (i === 0 ? ' active' : '') + '">' + icon(tabs[i][0]) + '<span>' + tabs[i][1] + '</span></button>';
+    }
+    return html + '</div>';
+  }
+
+  function cardHead() {
+    return statusbar()
+      + '<div class="cards-head">'
+      +   '<button class="icon-btn">' + icon('back') + '</button>'
+      +   '<div class="cards-progress">12 / 20</div>'
+      +   '<button class="icon-btn star">' + iconFilled('star') + '</button>'
+      + '</div>';
+  }
+
+  function phoneHome(label, inner) {
+    return '<div class="phone-col"><div class="phone-label">' + label + '</div>'
+      + '<div class="phone"><div class="screen">' + inner + '</div>' + tabbar() + '</div></div>';
+  }
+  function phoneCol(label, inner) {
+    return '<div class="phone-col"><div class="phone-label">' + label + '</div>'
+      + '<div class="phone"><div class="screen">' + inner + '</div></div></div>';
+  }
+
+  /* ================= 版式 A · Hero 焦点式 ================= */
+  function aHome() {
+    return statusbar()
+      + '<div class="a-head">'
+      +   '<div><div class="a-date">10月10日</div><div class="a-week">星期六</div></div>'
+      +   '<div class="a-streak">连续打卡 3 天</div>'
+      + '</div>'
+      + '<div class="a-hero">'
+      +   '<div class="a-greet">早上好，今天该背单词了</div>'
+      +   '<div class="a-hero-date">10月10日 · 星期六</div>'
+      +   '<div class="a-num-row"><span class="a-num">12</span><span class="a-total">/ 20</span></div>'
+      +   '<div class="a-cap">今日新词 · 目标 20 词</div>'
+      +   '<span class="a-tag">待复习 6 词</span>'
+      +   '<button class="a-hero-btn">开始学习</button>'
+      + '</div>'
+      + '<button class="a-ghost-btn">开始复习</button>'
+      + '<div class="a-stats">'
+      +   '<div class="a-stat"><div class="a-stat-num">128</div><div class="a-stat-label">累计学习</div></div>'
+      +   '<div class="a-stat"><div class="a-stat-num">32</div><div class="a-stat-label">累计打卡</div></div>'
+      +   '<div class="a-stat"><div class="a-stat-num">3</div><div class="a-stat-label">连续天数</div></div>'
+      + '</div>';
+  }
+  function aCardFront() {
+    return cardHead()
+      + '<div class="a-card front">'
+      +   '<div class="a-word-row"><h1 class="a-word">abandon</h1><button class="a-speak">' + icon('speaker') + '</button></div>'
+      +   '<div class="a-ph"><span>美 /əˈbændən/</span><span>英 /əˈbændən/</span></div>'
+      + '</div>'
+      + '<div class="cards-hint">点击卡片翻面 · 点喇叭发音</div>'
+      + '<div class="a-fb"><button class="a-fb-btn">不认识</button><button class="a-fb-btn">模糊</button><button class="a-fb-btn know">认识</button></div>';
+  }
+  function aCardBack() {
+    return cardHead()
+      + '<div class="a-card back">'
+      +   '<div class="a-trans"><span class="a-pos">vt.</span><span class="a-cn">放弃；抛弃；中止</span></div>'
+      +   '<div class="a-trans"><span class="a-pos">n.</span><span class="a-cn">放任；狂热</span></div>'
+      +   '<div class="a-def">放弃；抛弃；中止：to leave a place, thing, or person permanently.</div>'
+      +   '<div class="a-sent"><div class="a-sent-en">They had to abandon the plan.</div><div class="a-sent-cn">他们不得不放弃这个计划。</div></div>'
+      + '</div>'
+      + '<div class="cards-hint">已翻面 · 点喇叭发音</div>'
+      + '<div class="a-fb"><button class="a-fb-btn">不认识</button><button class="a-fb-btn">模糊</button><button class="a-fb-btn know">认识</button></div>';
+  }
+
+  /* ================= 版式 B · 仪表盘式 ================= */
+  function bHome() {
+    return statusbar()
+      + '<div class="b-head">'
+      +   '<div><div class="b-title">今日学习</div><div class="b-date">10月10日 · 星期六</div></div>'
+      +   '<div class="b-streak">连续打卡 3 天</div>'
+      + '</div>'
+      + '<div class="b-ring-wrap">'
+      +   '<svg class="b-ring" viewBox="0 0 120 120">'
+      +     '<circle class="b-ring-track" cx="60" cy="60" r="54" fill="none" stroke-width="10"/>'
+      +     '<circle class="b-ring-val" cx="60" cy="60" r="54" fill="none" stroke-width="10" stroke-dasharray="203.6 339.3" transform="rotate(-90 60 60)"/>'
+      +   '</svg>'
+      +   '<div class="b-ring-center"><div class="b-ring-num">60%</div><div class="b-ring-cap">今日完成度</div></div>'
+      + '</div>'
+      + '<div class="b-sub">今日新词 <b>12 / 20</b> · 待复习 <b>6</b></div>'
+      + '<div class="b-grid">'
+      +   '<button class="b-cell"><span class="b-cell-ico">' + icon('learn') + '</span><span class="b-cell-name">开始学习</span><span class="b-cell-desc">新词 12 / 20</span></button>'
+      +   '<button class="b-cell"><span class="b-cell-ico">' + icon('review') + '</span><span class="b-cell-name">开始复习</span><span class="b-cell-desc">待复习 6</span></button>'
+      +   '<button class="b-cell"><span class="b-cell-ico">' + icon('quiz') + '</span><span class="b-cell-name">去测试</span><span class="b-cell-desc">四选一 / 拼写</span></button>'
+      +   '<button class="b-cell"><span class="b-cell-ico">' + icon('notebook') + '</span><span class="b-cell-name">生词本</span><span class="b-cell-desc">已收藏生词</span></button>'
+      + '</div>'
+      + '<div class="b-stat-bar">'
+      +   '<div class="b-stat"><div class="b-stat-num">128</div><div class="b-stat-label">累计学习</div></div>'
+      +   '<div class="b-stat"><div class="b-stat-num">32</div><div class="b-stat-label">累计打卡</div></div>'
+      +   '<div class="b-stat"><div class="b-stat-num">3</div><div class="b-stat-label">连续天数</div></div>'
+      + '</div>';
+  }
+  function bCardFront() {
+    return cardHead()
+      + '<div class="b-progress-bar"><div class="b-progress-fill"></div></div>'
+      + '<div class="b-card front">'
+      +   '<div class="b-word-row"><h1 class="b-word">abandon</h1><button class="b-speak">' + icon('speaker') + '</button></div>'
+      +   '<div class="b-ph"><span>美 /əˈbændən/</span><span>英 /əˈbændən/</span></div>'
+      + '</div>'
+      + '<div class="cards-hint">点击卡片翻面 · 点喇叭发音</div>'
+      + '<div class="b-fb"><button class="b-fb-btn">不认识</button><button class="b-fb-btn">模糊</button><button class="b-fb-btn know">认识</button></div>';
+  }
+  function bCardBack() {
+    return cardHead()
+      + '<div class="b-progress-bar"><div class="b-progress-fill"></div></div>'
+      + '<div class="b-card back">'
+      +   '<div class="b-trans"><span class="b-pos">vt.</span><span class="b-cn">放弃；抛弃；中止</span></div>'
+      +   '<div class="b-trans"><span class="b-pos">n.</span><span class="b-cn">放任；狂热</span></div>'
+      +   '<div class="b-def">放弃；抛弃；中止：to leave a place, thing, or person permanently.</div>'
+      +   '<div class="b-sent"><div class="b-sent-en">They had to abandon the plan.</div><div class="b-sent-cn">他们不得不放弃这个计划。</div></div>'
+      + '</div>'
+      + '<div class="cards-hint">已翻面 · 点喇叭发音</div>'
+      + '<div class="b-fb"><button class="b-fb-btn">不认识</button><button class="b-fb-btn">模糊</button><button class="b-fb-btn know">认识</button></div>';
+  }
+
+  /* ================= 版式 C · 大字沉浸式 ================= */
+  function cHome() {
+    return statusbar()
+      + '<div class="c-top"><span class="c-date">10月10日 · 星期六</span><span class="c-streak">连续打卡 3 天</span></div>'
+      + '<h1 class="c-title">今天，背 <span class="c-accent">20</span> 个词</h1>'
+      + '<div class="c-progress"><span class="c-num">12</span><span class="c-den">/ 20</span><span class="c-cap">今日新词</span></div>'
+      + '<div class="c-rule"></div>'
+      + '<div class="c-line-row"><span class="c-line-label">待复习 6 词</span><span class="c-line-val"><span class="c-link">开始复习 ' + icon('chevron') + '</span></span></div>'
+      + '<button class="c-btn">开始学习</button>'
+      + '<div class="c-stats">'
+      +   '<div class="c-stat"><div class="c-stat-num">128</div><div class="c-stat-label">累计学习</div></div>'
+      +   '<div class="c-stat"><div class="c-stat-num">32</div><div class="c-stat-label">累计打卡</div></div>'
+      +   '<div class="c-stat"><div class="c-stat-num">3</div><div class="c-stat-label">连续天数</div></div>'
+      + '</div>';
+  }
+  function cCardFront() {
+    return cardHead()
+      + '<div class="c-card front">'
+      +   '<h1 class="c-word">abandon</h1>'
+      +   '<button class="c-speak">' + icon('speaker') + '</button>'
+      +   '<div class="c-ph">美 /əˈbændən/ · 英 /əˈbændən/</div>'
+      + '</div>'
+      + '<div class="cards-hint">点击卡片翻面 · 点喇叭发音</div>'
+      + '<div class="c-fb"><button class="c-fb-btn">不认识</button><button class="c-fb-btn">模糊</button><button class="c-fb-btn know">认识</button></div>';
+  }
+  function cCardBack() {
+    return cardHead()
+      + '<div class="c-card back">'
+      +   '<div class="c-trans"><span class="c-pos">vt.</span><span class="c-cn">放弃；抛弃；中止</span></div>'
+      +   '<div class="c-trans"><span class="c-pos">n.</span><span class="c-cn">放任；狂热</span></div>'
+      +   '<div class="c-def">放弃；抛弃；中止：to leave a place, thing, or person permanently.</div>'
+      +   '<div class="c-sent"><div class="c-sent-en">They had to abandon the plan.</div><div class="c-sent-cn">他们不得不放弃这个计划。</div></div>'
+      + '</div>'
+      + '<div class="cards-hint">已翻面 · 点喇叭发音</div>'
+      + '<div class="c-fb"><button class="c-fb-btn">不认识</button><button class="c-fb-btn">模糊</button><button class="c-fb-btn know">认识</button></div>';
+  }
+
+  var LAYOUTS = {
+    a: {
+      name: 'A · Hero 焦点式',
+      desc: '行动导向：首页一块大 Hero 主卡聚焦「今天该干嘛」，超大进度数字 + 通栏「开始学习」，下方统计小卡横排。',
+      vars: {
+        '--bg': '#FFFFFF', '--card': '#FFFFFF', '--fg': '#14161A', '--fg-2': '#5F6672',
+        '--line': '#ECEDF0', '--accent': '#3B5BDB', '--on-accent': '#FFFFFF', '--r': '8px', '--r-sm': '6px',
+        '--track': '#E7ECF8'
+      },
+      footer: '主色靛蓝 #3B5BDB｜白字压它 5.67:1｜它压白底 5.67:1｜次级 #5F6672 压底 5.78:1｜Hero 内白按钮(#FFF 底 + #3B5BDB 字) 5.67:1'
+    },
+    b: {
+      name: 'B · 仪表盘式',
+      desc: '数据掌控感：顶部 60% 完成度环形进度环，下方 2×2 功能入口网格 + 统计条，一眼看清今日进度。',
+      vars: {
+        '--bg': '#FFFFFF', '--card': '#FFFFFF', '--fg': '#14201D', '--fg-2': '#5F6672',
+        '--line': '#E4ECEA', '--accent': '#0E7C66', '--on-accent': '#FFFFFF', '--r': '12px', '--r-sm': '8px',
+        '--track': '#DFEDE9'
+      },
+      footer: '主色青绿 #0E7C66｜白字压它 5.13:1｜它压白底 5.13:1｜次级 #5F6672 压底 5.78:1'
+    },
+    c: {
+      name: 'C · 大字沉浸式',
+      desc: 'Typography-first：首页几乎不用卡片框，超大标题与进度数字 + 留白做层次；卡片页单词超大居中、反馈通栏三格。',
+      vars: {
+        '--bg': '#FFFFFF', '--card': '#FFFFFF', '--fg': '#111111', '--fg-2': '#6B6B6B',
+        '--line': '#ECECEC', '--accent': '#C0392B', '--on-accent': '#FFFFFF', '--r': '2px', '--r-sm': '2px',
+        '--track': '#F1EDEC'
+      },
+      footer: '单一强调红 #C0392B｜白字压它 5.44:1｜它压白底 5.44:1｜次级 #6B6B6B 压底 5.33:1｜正文 #111111 压白底 ≈18.9:1'
+    }
+  };
+
+  function render(id) {
+    var L = LAYOUTS[id];
+    var v = '';
+    for (var k in L.vars) {
+      if (L.vars.hasOwnProperty(k)) v += k + ':' + L.vars[k] + ';';
+    }
+    var home = id === 'a' ? aHome() : (id === 'b' ? bHome() : cHome());
+    var front = id === 'a' ? aCardFront() : (id === 'b' ? bCardFront() : cCardFront());
+    var back = id === 'a' ? aCardBack() : (id === 'b' ? bCardBack() : cCardBack());
+
+    var html = '<div class="layout-wrap layout-' + id + '" style="' + v + '">'
+      + '<div class="layout-meta"><h2>' + L.name + '</h2><p>' + L.desc + '</p></div>'
+      + '<div class="phones">'
+      +   phoneHome('首页 · 今日学习', home)
+      +   phoneCol('背单词卡片 · 正面', front)
+      +   phoneCol('背单词卡片 · 翻面', back)
+      + '</div>'
+      + '</div>';
+
+    document.getElementById('stage').innerHTML = html;
+    document.getElementById('pvContrast').textContent = '对比度 · ' + L.footer;
+  }
+
+  function bindTabs() {
+    var tabs = document.querySelectorAll('.pv-tab');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].addEventListener('click', function () {
+        var id = this.dataset.layout;
+        for (var j = 0; j < tabs.length; j++) {
+          tabs[j].classList.toggle('active', tabs[j] === this);
+        }
+        render(id);
+      });
+    }
+  }
+
+  bindTabs();
+  render('a');
+})();
+</script>
+</body>
+</html>

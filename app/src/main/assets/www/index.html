@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#FFFFFF">
+<title>单词卡</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ 今日学习（首页 · 版式 A Hero 焦点式） ============ -->
+  <section class="page" id="page-home">
+    <header class="home-head">
+      <div>
+        <div class="home-date" id="homeDate">—</div>
+        <div class="home-week" id="homeWeek">—</div>
+      </div>
+      <div class="home-streak" id="homeStreak">连续打卡 0 天</div>
+    </header>
+
+    <div class="hero">
+      <button class="book-capsule" id="homeBookCapsule" aria-label="切换词书">
+        <span class="book-capsule-label">当前词书</span>
+        <span class="book-capsule-name" id="homeBookName">四级核心</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="hero-greet">早上好，今天该背单词了</div>
+      <div class="hero-num-row">
+        <span class="hero-num" id="homeNewNum">0</span>
+        <span class="hero-total" id="homeNewTotal">/ 20</span>
+      </div>
+      <div class="hero-cap">今日新词</div>
+      <span class="hero-tag" id="homeReviewTag">待复习 0 词</span>
+      <button class="hero-btn" id="btnLearn">
+        <span class="btn-ico" id="btnLearnIco"></span><span>开始学习</span>
+      </button>
+    </div>
+
+    <button class="ghost-btn" id="btnReview">
+      <span class="btn-ico" id="btnReviewIco"></span><span>开始复习</span>
+    </button>
+
+    <div class="progress-block">
+      <div class="progress-label">
+        <span>本词书总进度</span>
+        <span class="progress-text" id="homeProgressText">0 / 0 · 0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="homeProgressFill"></div></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat">
+        <div class="stat-num" id="statLearned">0</div>
+        <div class="stat-label">累计学习</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statCheckin">0</div>
+        <div class="stat-label">累计打卡</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statStreak">0</div>
+        <div class="stat-label">连续天数</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 生词本 ============ -->
+  <section class="page hidden" id="page-notebook">
+    <header class="page-title">
+      <span>生词本</span>
+      <span class="page-sub" id="notebookCount"></span>
+    </header>
+    <div id="notebookList"></div>
+  </section>
+
+  <!-- ============ 设置 ============ -->
+  <section class="page hidden" id="page-settings">
+    <header class="page-title">设置</header>
+
+    <h2 class="sec-title">外观</h2>
+    <div class="panel">
+      <div class="line-row">
+        <span class="line-label">主题</span>
+      </div>
+      <div class="chips" id="themeChips">
+        <button class="chip" data-theme="light">浅色</button>
+        <button class="chip" data-theme="dark">深色</button>
+      </div>
+    </div>
+
+    <h2 class="sec-title">发音</h2>
+    <div class="panel">
+      <div class="line-row">
+        <span class="line-label">默认口音</span>
+      </div>
+      <div class="chips" id="accentChips">
+        <button class="chip" data-accent="us">美音</button>
+        <button class="chip" data-accent="uk">英音</button>
+      </div>
+    </div>
+
+    <h2 class="sec-title">学习</h2>
+    <div class="panel">
+      <div class="line-row">
+        <span class="line-label">每日新词量</span>
+      </div>
+      <div class="chips" id="dailyNewChips">
+        <button class="chip" data-n="10">10</button>
+        <button class="chip" data-n="20">20</button>
+        <button class="chip" data-n="30">30</button>
+        <button class="chip" data-n="50">50</button>
+      </div>
+      <div class="daily-new-row">
+        <label class="daily-new-label" for="dailyNewInput">自定义</label>
+        <div class="daily-new-field">
+          <input type="text" id="dailyNewInput" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="5–200">
+          <span class="daily-new-unit">词 / 天</span>
+        </div>
+      </div>
+      <div class="line-row">
+        <span class="line-note" id="estimateDays">预计 天学完本词书</span>
+      </div>
+    </div>
+
+    <h2 class="sec-title">词书</h2>
+    <div class="panel">
+      <button class="wide-btn book-switch" id="bookSwitchBtn">
+        <span class="book-switch-label">当前词书</span>
+        <span class="book-switch-value" id="settingsBookName">四级核心</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <h2 class="sec-title">数据</h2>
+    <div class="panel">
+      <button class="wide-btn" id="exportBtn">导出备份（JSON）</button>
+      <button class="wide-btn" id="importBtn">从文件导入</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+      <button class="wide-btn danger" id="clearBtn">清空全部数据</button>
+    </div>
+
+    <h2 class="sec-title">关于</h2>
+    <div class="panel">
+      <div class="line-row">
+        <span class="line-label">单词卡</span>
+        <span class="line-value" id="verText">—</span>
+      </div>
+      <div class="line-row">
+        <span class="line-note" id="dictNote">词库内嵌三本词书 · 数据保存在本机，不联网上传</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 词书选择页（全屏，无底部导航） ============ -->
+  <section class="page hidden" id="page-books">
+    <header class="books-head">
+      <button class="icon-btn" id="booksBack" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="books-title">选择词书</div>
+      <span class="books-head-spacer"></span>
+    </header>
+    <p class="books-sub">切换后，学习进度 / 测试 / 复习均按所选词书独立统计</p>
+    <div class="books-list" id="booksList"></div>
+  </section>
+
+  <!-- ============ 背单词卡片页（全屏，无底部导航） ============ -->
+  <section class="page hidden" id="page-cards">
+    <header class="cards-head">
+      <button class="icon-btn" id="cardExit" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="cards-progress" id="cardProgress">0 / 0</div>
+      <button class="icon-btn" id="cardStar" aria-label="收藏">
+        <svg class="star-o" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg class="star-f" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </button>
+    </header>
+
+    <div class="cards-info hidden" id="cardsInfo">新词 0 个 · 待复习 0 个</div>
+
+    <div class="flashcard" id="flashCard">
+      <div class="card-face card-front" id="cardFront"></div>
+      <div class="card-face card-back" id="cardBack"></div>
+    </div>
+
+    <div class="cards-hint">点击卡片翻面 · 点喇叭发音</div>
+
+    <div class="cards-actions" id="cardsActions">
+      <button class="fb forgot" data-fb="forgot">不认识</button>
+      <button class="fb fuzzy" data-fb="fuzzy">模糊</button>
+      <button class="fb know" data-fb="know">认识</button>
+    </div>
+
+    <div class="cards-actions hidden" id="cardsBrowse">
+      <button class="fb ghost" id="browsePrev">上一张</button>
+      <button class="fb ghost" id="browseNext">下一张</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ 底部导航（5 入口） ============ -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab active" data-page="home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <span>今日学习</span>
+  </button>
+  <button class="tab" data-page="notebook">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    <span>生词本</span>
+  </button>
+  <button class="tab" data-page="settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 9 19.4a1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 9a1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
+    <span>设置</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- 新手引导（仅首次启动触发） -->
+<div class="guide hidden" id="guide">
+  <button class="guide-skip" id="guideSkip">跳过</button>
+  <div class="guide-track" id="guideTrack">
+    <div class="guide-page">
+      <div class="guide-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <h2 class="guide-title">欢迎使用单词卡</h2>
+      <p class="guide-desc">科学安排复习，轻松记住四级词汇</p>
+    </div>
+    <div class="guide-page">
+      <div class="guide-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg></div>
+      <h2 class="guide-title">背单词卡片</h2>
+      <p class="guide-desc">点击翻面看释义，用「认识 / 模糊 / 不认识」三档反馈，点喇叭听发音</p>
+    </div>
+    <div class="guide-page">
+      <div class="guide-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+      <h2 class="guide-title">三本词书 · 每日计划</h2>
+      <p class="guide-desc">四级核心 / 完整 / 六级自由切换，每天学多少你定，自动算预计天数</p>
+    </div>
+    <div class="guide-page">
+      <div class="guide-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h2 class="guide-title">生词本 · 深色模式</h2>
+      <p class="guide-desc">收藏生词集中复习，夜间开启深色模式更护眼</p>
+    </div>
+  </div>
+  <div class="guide-dots" id="guideDots"></div>
+  <button class="guide-next" id="guideNext">下一步</button>
+</div>
+
+<!-- script 加载顺序固定：数据 → 工具/数据层 → 算法 → 页面 → 入口 -->
+<script src="data/cet4.js"></script>
+<script src="data/cet4_core.js"></script>
+<script src="data/cet6.js"></script>
+<script src="js/store.js"></script>
+<script src="js/words.js"></script>
+<script src="js/srs.js"></script>
+<script src="js/tts.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/notebook.js"></script>
+<script src="js/books.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/guide.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
