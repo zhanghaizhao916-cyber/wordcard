@@ -167,6 +167,11 @@
     document.documentElement.setAttribute('data-theme', theme);
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#15171A' : '#FBF9F4');
+    // Android 系统 状态栏/导航栏 跟随主题（WebView 内 meta 不生效，走 Bridge 通知原生）
+    var b = Util.bridge();
+    if (b && b.setSystemBarsTheme) {
+      try { b.setSystemBarsTheme(theme === 'dark'); } catch (e) { /* 忽略 */ }
+    }
   }
 
   /* ---------------- 启动 ---------------- */

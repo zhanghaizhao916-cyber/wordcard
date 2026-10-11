@@ -86,26 +86,16 @@
     return dueWordsFor(bookId).length;
   }
 
-  /** 按当前书取 count 个尚未学习的新词（按设置「顺序 / 乱序」抽取）。 */
+  /** 按当前书词表顺序取 count 个尚未学习的新词（顺序 / 乱序由所选词书决定）。 */
   function newWords(count) {
     var p = Store.getProgress();
     var wl = Words.currentList();
     var fresh = [];
-    for (var i = 0; i < wl.length; i++) {
+    for (var i = 0; i < wl.length && fresh.length < count; i++) {
       var w = wl[i];
       if (!p[w]) fresh.push(w);
     }
-    var s = Store.getSettings();
-    var order = (s && s.order) ? s.order : 'shuffle';
-    if (order !== 'seq') {
-      // 乱序：Fisher-Yates 洗牌
-      for (var j = fresh.length - 1; j > 0; j--) {
-        var k = Math.floor(Math.random() * (j + 1));
-        var t = fresh[j]; fresh[j] = fresh[k]; fresh[k] = t;
-      }
-    }
-    // 顺序：保持词书顺序，不洗牌
-    return fresh.slice(0, count);
+    return fresh;
   }
 
   /** 每日队列：复习优先，再补新词。 */

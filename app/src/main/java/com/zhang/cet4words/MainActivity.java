@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
     private static final int REQ_FILE = 1001;
 
     private WebView web;
+    private FrameLayout rootLayout;
     private TtsEngine tts;
     private ValueCallback<Uri[]> fileCallback;
     private boolean fallbackUsed = false;
@@ -48,17 +49,17 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FrameLayout root = new FrameLayout(this);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
+        rootLayout = new FrameLayout(this);
+        rootLayout.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        root.setBackgroundColor(0xFFFFFFFF);
+        rootLayout.setBackgroundColor(0xFFFBF9F4);
 
         web = new WebView(this);
         web.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         web.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        root.addView(web);
-        setContentView(root);
+        rootLayout.addView(web);
+        setContentView(rootLayout);
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
@@ -132,7 +133,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        applyLightBars();
+        applySystemBars(false);
 
         // 所有数据都在网页侧的 localStorage 里，页面重建后自己读回，无需恢复 WebView 状态
         web.loadUrl(START_URL);
@@ -244,22 +245,40 @@ public class MainActivity extends Activity {
         public String saveFile(String name, String content) {
             return FileExporter.save(MainActivity.this, name, content);
         }
+
+        /** 系统 状态栏/导航栏 跟随应用深色模式（网页 applyTheme 调用）。 */
+        @JavascriptInterface
+        public void setSystemBarsTheme(final boolean dark) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    applySystemBars(dark);
+                }
+            });
+        }
     }
 
     /* ---------------- 工具 ---------------- */
 
-    private void applyLightBars() {
-        int bg = 0xFFFFFFFF;
+    /** 系统 状态栏/导航栏 颜色跟随应用主题（深色: #15171A / 浅色: #FBF9F4），由网页 applyTheme 通过 Bridge 调用。 */
+    private void applySystemBars(boolean dark) {
+        int bg = dark ? 0xFF15171A : 0xFFFBF9F4;
         Window w = getWindow();
         w.setStatusBarColor(bg);
         w.setNavigationBarColor(bg);
 
         View decor = w.getDecorView();
         int flags = decor.getSystemUiVisibility();
-        flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        if (dark) {
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        } else {
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        }
         decor.setSystemUiVisibility(flags);
 
+        if (rootLayout != null) rootLayout.setBackgroundColor(bg);
         if (web != null) web.setBackgroundColor(bg);
     }
 

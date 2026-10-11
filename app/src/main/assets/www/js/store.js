@@ -68,9 +68,18 @@
   guide_seen: 'cet4.guide_seen'      // 新手引导是否已看（首次启动触发）
   };
 
-  // 与 words.js 的 Words.BOOK_IDS 保持一致（存储层先行，需独立持有）
-  var BOOK_IDS = ['cet4_core', 'cet4_full', 'cet6_full'];
+  // 进度桶（存储单元）与可选词书（words.js 的 BOOKS）：
+  // 顺序版 / 乱序版词书共享同一进度桶（BOOK_BASE 映射），切换后进度延续。
+  var BOOK_BASE = {
+    'cet4_core': 'cet4_core', 'cet4_core_shuf': 'cet4_core',
+    'cet4_full': 'cet4_full', 'cet4_full_shuf': 'cet4_full',
+    'cet6_full': 'cet6_full', 'cet6_full_shuf': 'cet6_full'
+  };
+  var BOOK_IDS = ['cet4_core', 'cet4_full', 'cet6_full'];   // 存储桶
+  var VALID_BOOKS = Object.keys(BOOK_BASE);                 // 全部可选词书（含乱序版）
   var DEFAULT_BOOK = 'cet4_core';
+
+  function baseBook(id) { return BOOK_BASE[id] || DEFAULT_BOOK; }
 
   function blankBookStats() {
     return {
@@ -102,11 +111,11 @@
   function getCurrentBook() {
     var meta = getMeta();
     var id = (meta && meta.current_book) ? meta.current_book : DEFAULT_BOOK;
-    if (BOOK_IDS.indexOf(id) < 0) id = DEFAULT_BOOK;
+    if (VALID_BOOKS.indexOf(id) < 0) id = DEFAULT_BOOK;
     return id;
   }
   function setCurrentBook(id) {
-    if (BOOK_IDS.indexOf(id) < 0) id = DEFAULT_BOOK;
+    if (VALID_BOOKS.indexOf(id) < 0) id = DEFAULT_BOOK;
     var meta = getMeta() || {};
     meta.schema_version = 2;
     meta.current_book = id;
@@ -121,22 +130,24 @@
   }
 
   function getBookProgress(id) {
-    var d = getBookData(id);
+    var d = getBookData(baseBook(id));
     return (d && d.progress && typeof d.progress === 'object') ? d.progress : {};
   }
   function setBookProgress(id, p) {
-    var d = getBookData(id) || {};
+    var key = baseBook(id);
+    var d = getBookData(key) || {};
     d.progress = p;
-    return setBookData(id, d);
+    return setBookData(key, d);
   }
   function getBookStats(id) {
-    var d = getBookData(id);
+    var d = getBookData(baseBook(id));
     return (d && d.stats && typeof d.stats === 'object') ? d.stats : blankBookStats();
   }
   function setBookStats(id, s) {
-    var d = getBookData(id) || {};
+    var key = baseBook(id);
+    var d = getBookData(key) || {};
     d.stats = s;
-    return setBookData(id, d);
+    return setBookData(key, d);
   }
 
   /** 老数据一次性迁移（幂等：schema_version>=2 直接跳过）。 */
@@ -233,13 +244,12 @@
 
     getSettings: function () {
       var s = getJSON(KEYS.settings, null);
-      if (!s || typeof s !== 'object') s = { accent: 'us', daily_new: 20, theme: 'light', order: 'shuffle' };
+      if (!s || typeof s !== 'object') s = { accent: 'us', daily_new: 20, theme: 'light' };
       if (s.accent !== 'us' && s.accent !== 'uk') s.accent = 'us';
       var dn = parseInt(s.daily_new, 10);
       if (isNaN(dn) || dn < 5 || dn > 200) dn = 20;
       s.daily_new = dn;
       if (s.theme !== 'light' && s.theme !== 'dark') s.theme = 'light';
-      if (s.order !== 'shuffle' && s.order !== 'seq') s.order = 'shuffle';
       return s;
     },
     setSettings: function (s) { return setJSON(KEYS.settings, s); },

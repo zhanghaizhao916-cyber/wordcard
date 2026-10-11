@@ -12,9 +12,9 @@ android {
         targetSdk = 34
         // 版本号规则：MAJOR.MINOR.PATCH
         // versionCode = MAJOR*10000 + MINOR*100 + PATCH
-        // 当前 1.8.0 → 10800
-        versionCode = 10800
-        versionName = "1.8.0"
+        // 当前 1.8.1 → 10801
+        versionCode = 10801
+        versionName = "1.8.1"
         resConfigs("zh", "en")
     }
 

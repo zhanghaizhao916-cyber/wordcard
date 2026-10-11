@@ -18,11 +18,6 @@
       nChips[j].classList.toggle('active', parseInt(nChips[j].dataset.n, 10) === s.daily_new);
     }
 
-    var oChips = document.querySelectorAll('#orderChips .chip');
-    for (var o = 0; o < oChips.length; o++) {
-      oChips[o].classList.toggle('active', oChips[o].dataset.order === s.order);
-    }
-
     var input = Util.$('#dailyNewInput');
     if (input) input.value = s.daily_new;
 
@@ -51,7 +46,7 @@
 
     var noteEl = Util.$('#dictNote');
     if (!noteEl) return;
-    var ids = Words.BOOK_IDS || ['cet4_core', 'cet4_full', 'cet6_full'];
+    var ids = (Words.BOOK_IDS || []).filter(function (id) { return id.indexOf('_shuf') < 0; });
     var parts = [];
     for (var i = 0; i < ids.length; i++) {
       var m = Words.bookMeta(ids[i]);
@@ -131,16 +126,6 @@
       render();
       if (window.App && App.refreshHome) App.refreshHome();
       Util.toast('每日新词量 ' + s.daily_new + ' 词');
-    });
-
-    Util.$('#orderChips').addEventListener('click', function (e) {
-      var c = e.target.closest('.chip');
-      if (!c) return;
-      var s = Store.getSettings();
-      s.order = c.dataset.order;
-      Store.setSettings(s);
-      render();
-      Util.toast(s.order === 'shuffle' ? '已切换为乱序学习' : '已切换为顺序学习');
     });
 
     var customInput = Util.$('#dailyNewInput');

@@ -10,11 +10,16 @@
 (function () {
   'use strict';
 
-  /* ---------------- 词书注册表（唯一维护点） ---------------- */
+  /* ---------------- 词书注册表（唯一维护点） ----------------
+     shuffled: true 表示「乱序版词书」—— 词单在 buildIndex 时洗牌一次（会话内固定）。
+     同名 base 词书（顺序版 / 乱序版）共享学习进度（进度桶由 store.js 的 BOOK_BASE 映射）。 */
   var BOOKS = [
     { id: 'cet4_core', name: '四级核心', rawList: 'CET4_CORE_WORDS', entriesSource: 'CET4_WORDS' },
+    { id: 'cet4_core_shuf', name: '四级核心·乱序', rawList: 'CET4_CORE_WORDS', entriesSource: 'CET4_WORDS', shuffled: true },
     { id: 'cet4_full', name: '四级完整', rawList: 'CET4_WORDS', entriesSource: 'CET4_WORDS' },
-    { id: 'cet6_full', name: '六级完整', rawList: 'CET6_WORDS', entriesSource: 'CET6_WORDS' }
+    { id: 'cet4_full_shuf', name: '四级完整·乱序', rawList: 'CET4_WORDS', entriesSource: 'CET4_WORDS', shuffled: true },
+    { id: 'cet6_full', name: '六级完整', rawList: 'CET6_WORDS', entriesSource: 'CET6_WORDS' },
+    { id: 'cet6_full_shuf', name: '六级完整·乱序', rawList: 'CET6_WORDS', entriesSource: 'CET6_WORDS', shuffled: true }
   ];
   var BOOK_IDS = BOOKS.map(function (b) { return b.id; });
 
@@ -53,7 +58,15 @@
     // 预构建各书词单（按 rawList 顺序，仅保留真实存在的词条）
     bookLists = {};
     for (var b = 0; b < BOOKS.length; b++) {
-      bookLists[BOOKS[b].id] = buildBookList(BOOKS[b]);
+      var bl = buildBookList(BOOKS[b]);
+      if (BOOKS[b].shuffled) {
+        // 乱序版：Fisher-Yates 洗牌一次（本次会话内固定顺序）
+        for (var j = bl.length - 1; j > 0; j--) {
+          var k = Math.floor(Math.random() * (j + 1));
+          var t = bl[j]; bl[j] = bl[k]; bl[k] = t;
+        }
+      }
+      bookLists[BOOKS[b].id] = bl;
     }
   }
 
