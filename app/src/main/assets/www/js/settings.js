@@ -155,6 +155,10 @@
       if (window.App && App.showBooks) App.showBooks();
     });
 
+    Util.$('#guideAgainBtn').addEventListener('click', function () {
+      if (window.Guide && Guide.reset) Guide.reset();
+    });
+
     Util.$('#exportBtn').addEventListener('click', exportData);
     Util.$('#importBtn').addEventListener('click', function () { Util.$('#importFile').click(); });
     Util.$('#importFile').addEventListener('change', function () {

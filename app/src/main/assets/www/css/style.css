@@ -147,6 +147,14 @@ svg{display:block}
   border:1px solid var(--line); border-radius:999px; padding:5px 12px; white-space:nowrap;
 }
 
+/* 发布版空词库提示 */
+.dict-empty{
+  margin:0 0 14px; padding:12px 14px; border:1px solid var(--line);
+  border-radius:var(--r); background:var(--card); color:var(--fg-2);
+  font-size:13px; line-height:1.6;
+}
+.dict-empty code{font-family:ui-monospace, Consolas, monospace; font-size:12px; background:var(--accent-soft); padding:1px 5px; border-radius:4px; color:var(--fg)}
+
 /* Hero 主卡：深蓝灰实色块，白字 */
 .hero{
   background:var(--accent); color:#FFFFFF; border-radius:16px;
@@ -487,6 +495,15 @@ svg{display:block}
   position:absolute; top:calc(env(safe-area-inset-top,0px) + 16px); right:16px;
   color:var(--fg-2); font-size:14px; font-weight:600; padding:8px 12px;
 }
+/* 自动播放进度条 */
+.guide-progress{position:absolute; top:0; left:0; right:0; height:3px; background:var(--line); overflow:hidden}
+.guide-progress-fill{height:100%; width:0; background:var(--accent)}
+.guide-progress-fill.run{animation:guide-progress 2.6s linear forwards}
+@keyframes guide-progress{from{width:0}to{width:100%}}
+/* 图标/标题入场动画 */
+.guide-ico.pop{animation:guide-pop .5s ease}
+.guide-title.pop{animation:guide-pop .5s ease}
+@keyframes guide-pop{from{opacity:0; transform:translateY(12px)}to{opacity:1; transform:translateY(0)}}
 .guide-track{display:flex; width:100%; overflow:hidden; transition:transform .25s ease}
 .guide-page{
   flex:0 0 100%; min-width:100%; display:flex; flex-direction:column; align-items:center;

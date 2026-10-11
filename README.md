@@ -25,9 +25,13 @@
 环境要求：JDK 17、Android SDK、Gradle 8.7。
 
 ```powershell
-.\build-apk.ps1            # 构建 debug 包
-.\build-apk.ps1 -Release   # 构建 release 包（复用 debug 签名）
+.\build-apk.ps1              # 私用版（含词库，构建完即用）
+.\build-apk.ps1 -NoDict      # 发布版（不含词库，规避版权风险）
+.\build-apk.ps1 -Release     # release 包（复用 debug 签名）
 ```
+
+- **私用版**：默认含词库，构建完可直接安装使用。
+- **发布版**（`-NoDict`）：不含词库，避免分发版权受限数据；安装后需按上文「词库」章节生成词库后重新构建。
 
 产物：`app\build\outputs\apk\debug\app-debug.apk`
 

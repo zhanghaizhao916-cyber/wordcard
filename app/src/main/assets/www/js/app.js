@@ -39,6 +39,9 @@
     var pct = total ? Math.min(100, Math.round(learnedCount / total * 100)) : 0;
     Util.$('#homeProgressFill').style.width = pct + '%';
     Util.$('#homeProgressText').textContent = learnedCount + ' / ' + total + ' · ' + pct + '%';
+
+    // 发布版（不含词库）提示
+    Util.$('#dictEmpty').classList.toggle('hidden', Words.count() > 0);
   }
 
   function startLearn() {

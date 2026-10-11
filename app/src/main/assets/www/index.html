@@ -21,6 +21,10 @@
       <div class="home-streak" id="homeStreak">连续打卡 0 天</div>
     </header>
 
+    <div class="dict-empty hidden" id="dictEmpty">
+      词库未生成：这是不含词库的发布版。请运行 <code>tools/build_dict.py</code> 与 <code>tools/build_core.py</code> 生成词库后重新构建，或使用含词库的私用版。
+    </div>
+
     <div class="hero">
       <button class="book-capsule" id="homeBookCapsule" aria-label="切换词书">
         <span class="book-capsule-label">当前词书</span>
@@ -151,6 +155,7 @@
       <div class="line-row">
         <span class="line-note" id="dictNote">词库内嵌三本词书 · 数据保存在本机，不联网上传</span>
       </div>
+      <button class="wide-btn" id="guideAgainBtn">重新查看新手引导</button>
     </div>
   </section>
 
@@ -224,6 +229,7 @@
 <!-- 新手引导（仅首次启动触发） -->
 <div class="guide hidden" id="guide">
   <button class="guide-skip" id="guideSkip">跳过</button>
+  <div class="guide-progress"><div class="guide-progress-fill" id="guideProgressFill"></div></div>
   <div class="guide-track" id="guideTrack">
     <div class="guide-page">
       <div class="guide-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
